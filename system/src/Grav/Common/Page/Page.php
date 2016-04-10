@@ -2,17 +2,19 @@
 namespace Grav\Common\Page;
 
 use Exception;
-use Grav\Common\Cache;
-use Grav\Common\Config\Config;
-use Grav\Common\Data\Blueprint;
 use Grav\Common\Filesystem\Folder;
-use Grav\Common\Grav;
+use Grav\Common\Config\Config;
+use Grav\Common\GravTrait;
 use Grav\Common\Language\Language;
+use Grav\Common\Utils;
+use Grav\Common\Cache;
+use Grav\Common\Twig;
+use Grav\Common\Uri;
+use Grav\Common\Grav;
+use Grav\Common\Taxonomy;
 use Grav\Common\Markdown\Parsedown;
 use Grav\Common\Markdown\ParsedownExtra;
-use Grav\Common\Taxonomy;
-use Grav\Common\Uri;
-use Grav\Common\Utils;
+use Grav\Common\Data\Blueprint;
 use RocketTheme\Toolbox\Event\Event;
 use RocketTheme\Toolbox\File\MarkdownFile;
 use Symfony\Component\Yaml\Exception\ParseException;
@@ -31,6 +33,8 @@ define('PAGE_ORDER_PREFIX_REGEX', '/^[0-9]+\./u');
  */
 class Page
 {
+    use GravTrait;
+
     /**
      * @var string Filename. Leave as null if page is folder.
      */
@@ -71,7 +75,6 @@ class Page
     protected $max_count;
     protected $menu;
     protected $date;
-    protected $dateformat;
     protected $taxonomy;
     protected $order_by;
     protected $order_dir;
@@ -99,15 +102,19 @@ class Page
 
     /**
      * Page Object Constructor
+     *
+     * @return $this
      */
     public function __construct()
     {
         /** @var Config $config */
-        $config = Grav::instance()['config'];
+        $config = self::getGrav()['config'];
 
         $this->taxonomy = [];
         $this->process = $config->get('system.pages.process');
         $this->published = true;
+
+        return $this;
     }
 
     /**
@@ -120,7 +127,7 @@ class Page
      */
     public function init(\SplFileInfo $file, $extension = null)
     {
-        $config = Grav::instance()['config'];
+        $config = self::getGrav()['config'];
 
         $this->hide_home_route = $config->get('system.home.hide_in_urls', false);
         $this->home_route = $config->get('system.home.alias');
@@ -159,7 +166,7 @@ class Page
     public function translatedLanguages()
     {
         $filename = substr($this->name, 0, -(strlen($this->extension())));
-        $config = Grav::instance()['config'];
+        $config = self::getGrav()['config'];
         $languages = $config->get('system.languages.supported', []);
         $translatedLanguages = [];
 
@@ -188,7 +195,7 @@ class Page
     public function untranslatedLanguages()
     {
         $filename = substr($this->name, 0, -(strlen($this->extension())));
-        $config = Grav::instance()['config'];
+        $config = self::getGrav()['config'];
         $languages = $config->get('system.languages.supported', []);
         $untranslatedLanguages = [];
 
@@ -290,7 +297,7 @@ class Page
                     $this->frontmatter = $file->frontmatter();
                     $this->header = (object)$file->header();
                 } catch (ParseException $e) {
-                    $file->raw(Grav::instance()['language']->translate([
+                    $file->raw(self::getGrav()['language']->translate([
                         'FRONTMATTER_ERROR_PAGE',
                         $this->slug(),
                         $file->filename(),
@@ -307,7 +314,7 @@ class Page
 
         if ($var) {
             if (isset($this->header->slug)) {
-                $this->slug(($this->header->slug));
+                $this->slug = trim($this->header->slug);
             }
             if (isset($this->header->routes)) {
                 $this->routes = (array)($this->header->routes);
@@ -341,9 +348,6 @@ class Page
             }
             if (isset($this->header->order_manual)) {
                 $this->order_manual = (array)$this->header->order_manual;
-            }
-            if (isset($this->header->dateformat)) {
-                $this->dateformat($this->header->dateformat);
             }
             if (isset($this->header->date)) {
                 $this->date($this->header->date);
@@ -426,7 +430,7 @@ class Page
      */
     public function summary($size = null)
     {
-        $config = (array)Grav::instance()['config']->get('site.summary');
+        $config = (array)self::getGrav()['config']->get('site.summary');
         if (isset($this->header->summary)) {
             $config = array_merge($config, $this->header->summary);
         }
@@ -508,11 +512,11 @@ class Page
             $this->media();
 
             /** @var Config $config */
-            $config = Grav::instance()['config'];
+            $config = self::getGrav()['config'];
 
             // Load cached content
             /** @var Cache $cache */
-            $cache = Grav::instance()['cache'];
+            $cache = self::getGrav()['cache'];
             $cache_id = md5('page' . $this->id());
             $content_obj = $cache->fetch($cache_id);
 
@@ -535,7 +539,7 @@ class Page
             // if no cached-content run everything
             if ($this->content === false || $cache_enable === false) {
                 $this->content = $this->raw_content;
-                Grav::instance()->fireEvent('onPageContentRaw', new Event(['page' => $this]));
+                self::getGrav()->fireEvent('onPageContentRaw', new Event(['page' => $this]));
 
                 if ($twig_first) {
                     if ($process_twig) {
@@ -546,7 +550,7 @@ class Page
                     }
 
                     // Content Processed but not cached yet
-                    Grav::instance()->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
+                    self::getGrav()->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
 
                 } else {
                     if ($process_markdown) {
@@ -554,7 +558,7 @@ class Page
                     }
 
                     // Content Processed but not cached yet
-                    Grav::instance()->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
+                    self::getGrav()->fireEvent('onPageContentProcessed', new Event(['page' => $this]));
 
                     if ($process_twig) {
                         $this->processTwig();
@@ -630,7 +634,7 @@ class Page
     protected function processMarkdown()
     {
         /** @var Config $config */
-        $config = Grav::instance()['config'];
+        $config = self::getGrav()['config'];
 
         $defaults = (array)$config->get('system.pages.markdown');
         if (isset($this->header()->markdown)) {
@@ -658,7 +662,7 @@ class Page
      */
     private function processTwig()
     {
-        $twig = Grav::instance()['twig'];
+        $twig = self::getGrav()['twig'];
         $this->content = $twig->processPage($this, $this->content);
     }
 
@@ -667,7 +671,7 @@ class Page
      */
     private function cachePageContent()
     {
-        $cache = Grav::instance()['cache'];
+        $cache = self::getGrav()['cache'];
         $cache_id = md5('page' . $this->id());
         $cache->save($cache_id, ['content' => $this->content, 'content_meta' => $this->content_meta]);
     }
@@ -847,7 +851,7 @@ class Page
         if ($parent->route()) {
             $this->route($parent->route() . '/' . $this->slug());
         } else {
-            $this->route(Grav::instance()['pages']->root()->route() . '/' . $this->slug());
+            $this->route(self::getGrav()['pages']->root()->route() . '/' . $this->slug());
         }
 
         return $this;
@@ -878,14 +882,12 @@ class Page
      */
     public function blueprints()
     {
-        $grav = Grav::instance();
-
         /** @var Pages $pages */
-        $pages = $grav['pages'];
+        $pages = self::getGrav()['pages'];
 
         $blueprint = $pages->blueprints($this->blueprintName());
         $fields = $blueprint->fields();
-        $edit_mode = isset($grav['admin']) ? $grav['config']->get('plugins.admin.edit_mode') : null;
+        $edit_mode = isset(self::getGrav()['admin']) ? self::getGrav()['config']->get('plugins.admin.edit_mode') : null;
 
         // override if you only want 'normal' mode
         if (empty($fields) && ($edit_mode == 'auto' || $edit_mode == 'normal')) {
@@ -990,7 +992,7 @@ class Page
     public function media($var = null)
     {
         /** @var Cache $cache */
-        $cache = Grav::instance()['cache'];
+        $cache = self::getGrav()['cache'];
 
         if ($var) {
             $this->media = $var;
@@ -1087,7 +1089,7 @@ class Page
 
         // if not set in the page get the value from system config
         if (empty($this->url_extension)) {
-            $this->url_extension = trim(isset($this->header->append_url_extension) ? $this->header->append_url_extension : Grav::instance()['config']->get('system.pages.append_url_extension', false));
+            $this->url_extension = trim(isset($this->header->append_url_extension) ? $this->header->append_url_extension : self::getGrav()['config']->get('system.pages.append_url_extension', false));
         }
 
         return $this->url_extension;
@@ -1106,7 +1108,7 @@ class Page
             $this->expires = $var;
         }
 
-        return empty($this->expires) ? Grav::instance()['config']->get('system.pages.expires') : $this->expires;
+        return empty($this->expires) ? self::getGrav()['config']->get('system.pages.expires') : $this->expires;
     }
 
     /**
@@ -1206,7 +1208,7 @@ class Page
     public function publishDate($var = null)
     {
         if ($var !== null) {
-            $this->publish_date = Utils::date2timestamp($var, $this->dateformat);
+            $this->publish_date = Utils::date2timestamp($var);
         }
 
         return $this->publish_date;
@@ -1222,7 +1224,7 @@ class Page
     public function unpublishDate($var = null)
     {
         if ($var !== null) {
-            $this->unpublish_date = Utils::date2timestamp($var, $this->dateformat);
+            $this->unpublish_date = Utils::date2timestamp($var);
         }
 
         return $this->unpublish_date;
@@ -1288,7 +1290,7 @@ class Page
 
         // if not metadata yet, process it.
         if (null === $this->metadata) {
-            $header_tag_http_equivs = ['content-type', 'default-style', 'refresh', 'x-ua-compatible'];
+            $header_tag_http_equivs = ['content-type', 'default-style', 'refresh'];
 
             $this->metadata = [];
 
@@ -1297,7 +1299,7 @@ class Page
             $metadata['generator'] = 'GravCMS';
 
             // Get initial metadata for the page
-            $metadata = array_merge($metadata, Grav::instance()['config']->get('site.metadata'));
+            $metadata = array_merge($metadata, self::getGrav()['config']->get('site.metadata'));
 
             if (isset($this->header->metadata)) {
                 // Merge any site.metadata settings in with page metadata
@@ -1318,8 +1320,6 @@ class Page
                     if ($value) {
                         if (in_array($key, $header_tag_http_equivs)) {
                             $this->metadata[$key] = ['http_equiv' => $key, 'content' => htmlspecialchars($value, ENT_QUOTES)];
-                        } elseif ($key == 'charset') {
-                            $this->metadata[$key] = ['charset' => htmlspecialchars($value, ENT_QUOTES)];
                         } else {
                             // if it's a social metadata with separator, render as property
                             $separator    = strpos($key, ':');
@@ -1352,16 +1352,11 @@ class Page
     {
         if ($var !== null) {
             $this->slug = $var;
-            if(!preg_match('/^[a-z0-9][-a-z0-9]*$/', $this->slug)){
-                Grav::instance()['log']->notice("Invalid slug set in YAML frontmatter: " . $this->rawRoute() . " => ".  $this->slug);
-            }
         }
 
         if (empty($this->slug)) {
-            $this->slug = strtolower(preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $this->folder));
+            $this->slug = preg_replace(PAGE_ORDER_PREFIX_REGEX, '', $this->folder);
         }
-
-
 
         return $this->slug;
     }
@@ -1416,19 +1411,17 @@ class Page
      */
     public function url($include_host = false, $canonical = false, $include_lang = true)
     {
-        $grav = Grav::instance();
-
         /** @var Pages $pages */
-        $pages = $grav['pages'];
+        $pages = self::getGrav()['pages'];
 
         /** @var Config $config */
-        $config = $grav['config'];
+        $config = self::getGrav()['config'];
 
         /** @var Language $language */
-        $language = $grav['language'];
+        $language = self::getGrav()['language'];
 
         /** @var Uri $uri */
-        $uri = $grav['uri'];
+        $uri = self::getGrav()['uri'];
 
         // get pre-route
         if ($include_lang && $language->enabled()) {
@@ -1637,7 +1630,7 @@ class Page
             $this->etag = $var;
         }
         if (!isset($this->etag)) {
-            $this->etag = (bool)Grav::instance()['config']->get('system.pages.etag');
+            $this->etag = (bool)self::getGrav()['config']->get('system.pages.etag');
         }
 
         return $this->etag;
@@ -1656,7 +1649,7 @@ class Page
             $this->last_modified = $var;
         }
         if (!isset($this->last_modified)) {
-            $this->last_modified = (bool)Grav::instance()['config']->get('system.pages.last_modified');
+            $this->last_modified = (bool)self::getGrav()['config']->get('system.pages.last_modified');
         }
 
         return $this->last_modified;
@@ -1751,7 +1744,7 @@ class Page
     public function date($var = null)
     {
         if ($var !== null) {
-            $this->date = Utils::date2timestamp($var, $this->dateformat);
+            $this->date = Utils::date2timestamp($var);
         }
 
         if (!$this->date) {
@@ -1759,23 +1752,6 @@ class Page
         }
 
         return $this->date;
-    }
-
-    /**
-     * Gets and sets the date format for this Page object. This is typically passed in via the page headers
-     * using typical PHP date string structure - http://php.net/manual/en/function.date.php
-     *
-     * @param  string $var string representation of a date format
-     *
-     * @return string      string representation of a date format
-     */
-    public function dateformat($var = null)
-    {
-        if ($var !== null) {
-            $this->dateformat = $var;
-        }
-
-        return $this->dateformat;
     }
 
     /**
@@ -1849,7 +1825,7 @@ class Page
         }
         if (empty($this->max_count)) {
             /** @var Config $config */
-            $config = Grav::instance()['config'];
+            $config = self::getGrav()['config'];
             $this->max_count = (int)$config->get('system.pages.list.count');
         }
 
@@ -1873,7 +1849,7 @@ class Page
     }
 
     /**
-     * Gets and sets the modular var that helps identify this page is a modular child
+     * Gets and sets the modular var that helps identify this parent page contains modular pages.
      *
      * @param  bool $var true if modular_twig
      *
@@ -1885,7 +1861,7 @@ class Page
     }
 
     /**
-     * Gets and sets the modular_twig var that helps identify this page as a modular child page that will need
+     * Gets and sets the modular_twig var that helps identify this page as a modular page that will need
      * twig processing handled differently from a regular page.
      *
      * @param  bool $var true if modular_twig
@@ -1937,7 +1913,7 @@ class Page
         }
 
         /** @var Pages $pages */
-        $pages = Grav::instance()['pages'];
+        $pages = self::getGrav()['pages'];
 
         return $pages->get($this->parent);
     }
@@ -1975,7 +1951,7 @@ class Page
     public function children()
     {
         /** @var Pages $pages */
-        $pages = Grav::instance()['pages'];
+        $pages = self::getGrav()['pages'];
 
         return $pages->children($this->path());
     }
@@ -2055,8 +2031,8 @@ class Page
      */
     public function active()
     {
-        $uri_path = rtrim(Grav::instance()['uri']->path(), '/') ?: '/';
-        $routes = Grav::instance()['pages']->routes();
+        $uri_path = rtrim(self::getGrav()['uri']->path(), '/') ?: '/';
+        $routes = self::getGrav()['pages']->routes();
 
         if (isset($routes[$uri_path])) {
             if ($routes[$uri_path] == $this->path()) {
@@ -2076,10 +2052,10 @@ class Page
      */
     public function activeChild()
     {
-        $uri = Grav::instance()['uri'];
-        $pages = Grav::instance()['pages'];
+        $uri = self::getGrav()['uri'];
+        $pages = self::getGrav()['pages'];
         $uri_path = rtrim($uri->path(), '/');
-        $routes = Grav::instance()['pages']->routes();
+        $routes = self::getGrav()['pages']->routes();
 
         if (isset($routes[$uri_path])) {
             /** @var Page $child_page */
@@ -2132,9 +2108,9 @@ class Page
     public function find($url, $all = false)
     {
         /** @var Pages $pages */
-        $pages = Grav::instance()['pages'];
+        $pages = self::getGrav()['pages'];
 
-        return $pages->find($url, $all);
+        return $pages->dispatch($url, $all);
     }
 
     /**
@@ -2165,9 +2141,9 @@ class Page
         $collection->setParams($params);
 
         /** @var Uri $uri */
-        $uri = Grav::instance()['uri'];
+        $uri = self::getGrav()['uri'];
         /** @var Config $config */
-        $config = Grav::instance()['config'];
+        $config = self::getGrav()['config'];
 
         $process_taxonomy = isset($params['url_taxonomy_filters']) ? $params['url_taxonomy_filters'] : $config->get('system.pages.url_taxonomy_filters');
 
@@ -2209,7 +2185,7 @@ class Page
         }
 
         /** @var Grav $grav */
-        $grav = Grav::instance()['grav'];
+        $grav = self::getGrav()['grav'];
 
         // New Custom event to handle things like pagination.
         $grav->fireEvent('onCollectionProcessed', new Event(['collection' => $collection]));
@@ -2266,7 +2242,7 @@ class Page
         }
 
         /** @var Pages $pages */
-        $pages = Grav::instance()['pages'];
+        $pages = self::getGrav()['pages'];
 
         $parts = explode('.', $cmd);
         $current = array_shift($parts);
@@ -2360,7 +2336,7 @@ class Page
                 // @taxonomy: { category: [ blog, featured ], level: 1 }
 
                 /** @var Taxonomy $taxonomy_map */
-                $taxonomy_map = Grav::instance()['taxonomy'];
+                $taxonomy_map = self::getGrav()['taxonomy'];
 
                 if (!empty($parts)) {
                     $params = [implode('.', $parts) => $params];
@@ -2443,7 +2419,7 @@ class Page
         // Do reordering.
         if ($reorder && $this->order() != $this->_original->order()) {
             /** @var Pages $pages */
-            $pages = Grav::instance()['pages'];
+            $pages = self::getGrav()['pages'];
 
             $parent = $this->parent();
 
@@ -2506,20 +2482,20 @@ class Page
     protected function setPublishState()
     {
         // Handle publishing dates if no explict published option set
-        if (Grav::instance()['config']->get('system.pages.publish_dates') && !isset($this->header->published)) {
+        if (self::getGrav()['config']->get('system.pages.publish_dates') && !isset($this->header->published)) {
             // unpublish if required, if not clear cache right before page should be unpublished
             if ($this->unpublishDate()) {
                 if ($this->unpublishDate() < time()) {
                     $this->published(false);
                 } else {
                     $this->published();
-                    Grav::instance()['cache']->setLifeTime($this->unpublishDate());
+                    self::getGrav()['cache']->setLifeTime($this->unpublishDate());
                 }
             }
             // publish if required, if not clear cache right before page is published
             if ($this->publishDate() && $this->publishDate() && $this->publishDate() > time()) {
                 $this->published(false);
-                Grav::instance()['cache']->setLifeTime($this->publishDate());
+                self::getGrav()['cache']->setLifeTime($this->publishDate());
             }
         }
     }

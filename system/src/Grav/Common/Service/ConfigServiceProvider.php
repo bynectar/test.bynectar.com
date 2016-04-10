@@ -90,7 +90,7 @@ class ConfigServiceProvider implements ServiceProviderInterface
 
     public static function languages(Container $container)
     {
-        /** @var Setup $setup */
+        /** Setup $setup */
         $setup = $container['setup'];
 
         /** @var Config $config */

@@ -15,7 +15,7 @@ class SandboxCommand extends ConsoleCommand
     /**
      * @var array
      */
-    protected $directories = [
+    protected $directories = array(
         '/backup',
         '/cache',
         '/logs',
@@ -27,22 +27,22 @@ class SandboxCommand extends ConsoleCommand
         '/user/data',
         '/user/plugins',
         '/user/themes',
-    ];
+    );
 
     /**
      * @var array
      */
-    protected $files = [
+    protected $files = array(
         '/.dependencies',
         '/.htaccess',
         '/user/config/site.yaml',
         '/user/config/system.yaml',
-    ];
+    );
 
     /**
      * @var array
      */
-    protected $mappings = [
+    protected $mappings = array(
         '/.editorconfig'        => '/.editorconfig',
         '/.gitignore'           => '/.gitignore',
         '/CHANGELOG.md'         => '/CHANGELOG.md',
@@ -56,7 +56,7 @@ class SandboxCommand extends ConsoleCommand
         '/vendor'               => '/vendor',
         '/webserver-configs'    => '/webserver-configs',
         '/codeception.yml'      => '/codeception.yml',
-    ];
+    );
 
     /**
      * @var string
@@ -200,7 +200,7 @@ class SandboxCommand extends ConsoleCommand
      */
     private function initFiles()
     {
-        $this->check();
+        $this->check($this->output);
 
         $this->output->writeln('');
         $this->output->writeln('<comment>File Initializing</comment>');
@@ -225,6 +225,8 @@ class SandboxCommand extends ConsoleCommand
         if (!$files_init) {
             $this->output->writeln('    <red>Files already exist</red>');
         }
+
+
     }
 
     /**
@@ -237,7 +239,7 @@ class SandboxCommand extends ConsoleCommand
 
         // get pages files and initialize if no pages exist
         $pages_dir = $this->destination . '/user/pages';
-        $pages_files = array_diff(scandir($pages_dir), ['..', '.']);
+        $pages_files = array_diff(scandir($pages_dir), array('..', '.'));
 
         if (count($pages_files) == 0) {
             $destination = $this->source . '/user/pages';
@@ -267,6 +269,7 @@ class SandboxCommand extends ConsoleCommand
         $this->output->writeln("");
     }
 
+
     /**
      *
      */
@@ -292,7 +295,6 @@ class SandboxCommand extends ConsoleCommand
                 $success = false;
             }
         }
-
         if (!$success) {
             $this->output->writeln('');
             $this->output->writeln('<comment>install should be run with --symlink|--s to symlink first</comment>');

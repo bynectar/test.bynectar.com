@@ -10,7 +10,7 @@ form:
 
     section:
         type: section
-        title: PLUGIN_ADMIN.ADD_FOLDER
+        title: PLUGIN_ADMIN.ADD_PAGE
 
     folder:
       type: text

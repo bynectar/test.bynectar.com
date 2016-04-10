@@ -2,6 +2,7 @@
 namespace Grav\Common\Page;
 
 use Grav\Common\Getters;
+use Grav\Common\GravTrait;
 use Grav\Common\Page\Medium\Medium;
 use Grav\Common\Page\Medium\MediumFactory;
 
@@ -14,6 +15,8 @@ use Grav\Common\Page\Medium\MediumFactory;
  */
 class Media extends Getters
 {
+    use GravTrait;
+
     protected $gettersVariable = 'instances';
     protected $path;
 
@@ -86,7 +89,7 @@ class Media extends Getters
                 $medium = MediumFactory::scaledFromMedium($altMedium, $ratio, 1)['file'];
             }
 
-            if (empty($medium)) {
+            if (!$medium) {
                 continue;
             }
 

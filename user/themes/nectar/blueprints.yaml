@@ -1,0 +1,30 @@
+name: Nectar
+version: 1.0.0
+description: "Nectar is the Grav theme for bynectar.com"
+icon: empire
+author:
+  name: John the Designer
+  email: john@johnthedesigner.com
+  url: http://johnthedesigner.com
+
+form:
+  validation: loose
+  fields:
+    default_lang:
+      type: text
+      size: x-small
+      label: Default lang
+      default: 'en'
+      validate:
+        type: text
+
+    dropdown.enabled:
+        type: toggle
+        label: Dropdown in navbar
+        highlight: 1
+        default: 1
+        options:
+          1: Enabled
+          0: Disabled
+        validate:
+          type: bool

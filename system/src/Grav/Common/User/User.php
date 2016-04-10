@@ -4,7 +4,7 @@ namespace Grav\Common\User;
 use Grav\Common\Data\Blueprints;
 use Grav\Common\Data\Data;
 use Grav\Common\File\CompiledYamlFile;
-use Grav\Common\Grav;
+use Grav\Common\GravTrait;
 use Grav\Common\Utils;
 
 /**
@@ -18,6 +18,8 @@ use Grav\Common\Utils;
  */
 class User extends Data
 {
+    use GravTrait;
+
     /**
      * Load user account.
      *
@@ -29,12 +31,12 @@ class User extends Data
      */
     public static function load($username)
     {
-        $locator = Grav::instance()['locator'];
+        $locator = self::getGrav()['locator'];
 
         // force lowercase of username
         $username = strtolower($username);
 
-        $blueprints = new Blueprints;
+        $blueprints = new Blueprints('blueprints://');
         $blueprint = $blueprints->get('user/account');
         $file_path = $locator->findResource('account://' . $username . YAML_EXT);
         $file = CompiledYamlFile::instance($file_path);
@@ -60,7 +62,7 @@ class User extends Data
      */
     public static function remove($username)
     {
-        $file_path = Grav::instance()['locator']->findResource('account://' . $username . YAML_EXT);
+        $file_path = self::getGrav()['locator']->findResource('account://' . $username . YAML_EXT);
         if (file_exists($file_path) && unlink($file_path)) {
             return true;
         }
@@ -89,7 +91,7 @@ class User extends Data
                 // the result
                 Authentication::verify(
                     $password,
-                    Grav::instance()['config']->get('system.security.default_hash')
+                    self::getGrav()['config']->get('system.security.default_hash')
                 );
 
                 return false;
@@ -161,7 +163,7 @@ class User extends Data
         $groups = $this->get('groups');
         if ($groups) {
             foreach ((array)$groups as $group) {
-                $permission = Grav::instance()['config']->get("groups.{$group}.access.{$action}");
+                $permission = self::getGrav()['config']->get("groups.{$group}.access.{$action}");
                 $return = Utils::isPositive($permission);
                 if ($return === true) {
                     break;

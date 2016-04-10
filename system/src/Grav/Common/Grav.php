@@ -38,16 +38,6 @@ class Grav extends Container
     protected static $instance;
 
     /**
-     * Reset the Grav instance.
-     */
-    public static function resetInstance()
-    {
-        if (self::$instance) {
-            self::$instance = null;
-        }
-    }
-
-    /**
      * Return the Grav instance. Create it if it's not already instanced
      *
      * @param array $values
@@ -58,6 +48,9 @@ class Grav extends Container
     {
         if (!self::$instance) {
             self::$instance = static::load($values);
+
+            GravTrait::setGrav(self::$instance);
+
         } elseif ($values) {
             $instance = self::$instance;
             foreach ($values as $key => $value) {
@@ -83,6 +76,8 @@ class Grav extends Container
 
         $container['debugger'] = new Debugger();
         $container['debugger']->startTimer('_services', 'Services');
+
+        $container->register(new LoggerServiceProvider);
 
         $container->register(new ErrorServiceProvider);
 
@@ -152,35 +147,18 @@ class Grav extends Container
 
             // Redirection tests
             if ($page) {
-                $url = $page->route();
-
-                if ($uri->params()) {
-                    if ($url == '/') { //Avoid double slash
-                        $url = $uri->params();
-                    } else {
-                        $url .= $uri->params();
-                    }
-                }
-                if ($uri->query()) {
-                    $url .= '?' . $uri->query();
-                }
-                if ($uri->fragment()) {
-                    $url .= '#' . $uri->fragment();
-                }
-
                 // Language-specific redirection scenarios
                 if ($language->enabled()) {
                     if ($language->isLanguageInUrl() && !$language->isIncludeDefaultLanguage()) {
-                        $c->redirect($url);
+                        $c->redirect($page->route());
                     }
                     if (!$language->isLanguageInUrl() && $language->isIncludeDefaultLanguage()) {
-                        $c->redirectLangSafe($url);
+                        $c->redirectLangSafe($page->route());
                     }
                 }
-
                 // Default route test and redirect
                 if ($c['config']->get('system.pages.redirect_default_route') && $page->route() != $path) {
-                    $c->redirectLangSafe($url);
+                    $c->redirectLangSafe($page->route());
                 }
             }
 
@@ -214,7 +192,6 @@ class Grav extends Container
 
         $container->register(new StreamsServiceProvider);
         $container->register(new ConfigServiceProvider);
-        $container->register(new LoggerServiceProvider);
 
         $container['inflector'] = new Inflector();
 
@@ -239,8 +216,6 @@ class Grav extends Container
 
         // Initialize configuration.
         $debugger->startTimer('_config', 'Configuration');
-        /** @var Plugins $plugins */
-        $plugins = $this['plugins']->setup();
         $this['config']->init();
         $debugger->stopTimer('_config');
 
@@ -270,12 +245,17 @@ class Grav extends Container
         $this['uri']->init();
         $this['session']->init();
 
-        $this->setLocale();
+        // Initialize Locale if set and configured.
+        if ($this['language']->enabled() && $this['config']->get('system.languages.override_locale')) {
+            setlocale(LC_ALL, $this['language']->getLanguage());
+        } elseif ($this['config']->get('system.default_locale')) {
+            setlocale(LC_ALL, $this['config']->get('system.default_locale'));
+        }
 
         $debugger->stopTimer('init');
 
         $debugger->startTimer('plugins', 'Plugins');
-        $plugins->init();
+        $this['plugins']->init();
         $this->fireEvent('onPluginsInitialized');
         $debugger->stopTimer('plugins');
 
@@ -317,20 +297,6 @@ class Grav extends Container
         $this->fireEvent('onOutputRendered');
 
         register_shutdown_function([$this, 'shutdown']);
-    }
-
-    /**
-     * Set the system locale based on the language and configuration
-     */
-    public function setLocale()
-    {
-        // Initialize Locale if set and configured.
-        if ($this['language']->enabled() && $this['config']->get('system.languages.override_locale')) {
-            $language = $this['language']->getLanguage();
-            setlocale(LC_ALL, count($language < 3) ? ($language . '_' . strtoupper($language)) : $language );
-        } elseif ($this['config']->get('system.default_locale')) {
-            setlocale(LC_ALL, $this['config']->get('system.default_locale'));
-        }
     }
 
     /**

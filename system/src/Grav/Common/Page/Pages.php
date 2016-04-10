@@ -288,19 +288,6 @@ class Pages
     }
 
     /**
-     * alias method to return find a page.
-     *
-     * @param string $url The relative URL of the page
-     * @param bool   $all
-     *
-     * @return Page|null
-     */
-    public function find($url, $all = false)
-    {
-        return $this->dispatch($url, $all);
-    }
-
-    /**
      * Dispatch URI to a page.
      *
      * @param string $url The relative URL of the page
@@ -404,7 +391,7 @@ class Pages
             $blueprint = $this->blueprints->get('default');
         }
 
-        if (empty($blueprint->initialized)) {
+        if (!$blueprint->initialized) {
             $this->grav->fireEvent('onBlueprintCreated', new Event(['blueprint' => $blueprint]));
             $blueprint->initialized = true;
         }
@@ -483,10 +470,11 @@ class Pages
      */
     public static function getTypes()
     {
+        $locator = Grav::instance()['locator'];
         if (!self::$types) {
             self::$types = new Types();
-            self::$types->scanBlueprints('theme://blueprints/');
-            self::$types->scanTemplates('theme://templates/');
+            file_exists('theme://blueprints/') && self::$types->scanBlueprints($locator->findResources('theme://blueprints/'));
+            file_exists('theme://templates/') && self::$types->scanTemplates($locator->findResources('theme://templates/'));
 
             $event = new Event();
             $event->types = self::$types;
@@ -695,7 +683,6 @@ class Pages
 
         /** @var UniformResourceLocator $locator */
         $locator = $this->grav['locator'];
-
         $pages_dir = $locator->findResource('page://');
 
         if ($config->get('system.cache.enabled')) {
@@ -717,7 +704,7 @@ class Pages
                     $last_modified = Folder::lastModifiedFile($pages_dir);
             }
 
-            $page_cache_id = md5($pages_dir . $last_modified . $language->getActive() . $config->checksum());
+            $page_cache_id = md5(USER_DIR . $last_modified . $language->getActive() . $config->checksum());
 
             list($this->instances, $this->routes, $this->children, $taxonomy_map, $this->sort) = $cache->fetch($page_cache_id);
             if (!$this->instances) {
@@ -839,10 +826,8 @@ class Pages
         // set current modified of page
         $last_modified = $page->modified();
 
-        $iterator = new \FilesystemIterator($directory);
-
         /** @var \DirectoryIterator $file */
-        foreach ($iterator as $file) {
+        foreach (new \FilesystemIterator($directory) as $file) {
             $name = $file->getFilename();
 
             // Ignore all hidden files if set.
@@ -970,7 +955,6 @@ class Pages
         $list = [];
         $header_default = null;
         $header_query = null;
-        $sort_flags = SORT_NATURAL | SORT_FLAG_CASE;
 
         // do this header query work only once
         if (strpos($order_by, 'header.') === 0) {
@@ -992,11 +976,9 @@ class Pages
                     break;
                 case 'date':
                     $list[$key] = $child->date();
-                    $sort_flags = SORT_REGULAR;
                     break;
                 case 'modified':
                     $list[$key] = $child->modified();
-                    $sort_flags = SORT_REGULAR;
                     break;
                 case 'slug':
                     $list[$key] = $child->slug();
@@ -1012,13 +994,11 @@ class Pages
                     } else {
                         $list[$key] = $header_default ?: $key;
                     }
-                    $sort_flags = SORT_REGULAR;
                     break;
                 case 'manual':
                 case 'default':
                 default:
                     $list[$key] = $key;
-                    $sort_flags = SORT_REGULAR;
             }
         }
 
@@ -1027,7 +1007,7 @@ class Pages
             $list = $this->arrayShuffle($list);
         } else {
             // else just sort the list according to specified key
-            asort($list, $sort_flags);
+            asort($list);
         }
 
 

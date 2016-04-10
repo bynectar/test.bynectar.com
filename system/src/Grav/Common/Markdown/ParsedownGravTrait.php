@@ -1,7 +1,9 @@
 <?php
 namespace Grav\Common\Markdown;
 
-use Grav\Common\Grav;
+use Grav\Common\GravTrait;
+use Grav\Common\Page\Page;
+use Grav\Common\Page\Pages;
 use Grav\Common\Uri;
 use RocketTheme\Toolbox\Event\Event;
 
@@ -10,6 +12,8 @@ use RocketTheme\Toolbox\Event\Event;
  */
 trait ParsedownGravTrait
 {
+    use GravTrait;
+
     /** @var Page $page */
     protected $page;
 
@@ -35,17 +39,17 @@ trait ParsedownGravTrait
      */
     protected function init($page, $defaults)
     {
-        $grav = Grav::instance();
+        $grav = self::getGrav();
 
         $this->page = $page;
         $this->pages = $grav['pages'];
         $this->uri = $grav['uri'];
         $this->BlockTypes['{'] [] = "TwigTag";
-        $this->pages_dir = Grav::instance()['locator']->findResource('page://');
+        $this->pages_dir = self::getGrav()['locator']->findResource('page://');
         $this->special_chars = ['>' => 'gt', '<' => 'lt', '"' => 'quot'];
 
         if ($defaults === null) {
-            $defaults = Grav::instance()['config']->get('system.pages.markdown');
+            $defaults = self::getGrav()['config']->get('system.pages.markdown');
         }
 
         $this->setBreaksEnabled($defaults['auto_line_breaks']);
@@ -63,13 +67,9 @@ trait ParsedownGravTrait
      * @param $type
      * @param $tag
      */
-    public function addBlockType($type, $tag, $continuable = false, $completable = false, $index = null)
+    public function addBlockType($type, $tag, $continuable = false, $completable = false)
     {
-        if (!isset($index)) {
-            $this->BlockTypes[$type] [] = $tag;
-        } else {
-            array_splice($this->BlockTypes[$type], $index, 0, $tag);
-        }
+        $this->BlockTypes[$type] [] = $tag;
 
         if ($continuable) {
             $this->continuable_blocks[] = $tag;
@@ -86,17 +86,10 @@ trait ParsedownGravTrait
      * @param $type
      * @param $tag
      */
-    public function addInlineType($type, $tag, $index = null)
+    public function addInlineType($type, $tag)
     {
-        if (!isset($index)) {
-            $this->InlineTypes[$type] [] = $tag;
-        } else {
-            array_splice($this->InlineTypes[$type], $index, 0, $tag);
-        }
-        
-        if (strpos($this->inlineMarkerList, $type) === false) {
-            $this->inlineMarkerList .= $type;
-        }
+        $this->InlineTypes[$type] [] = $tag;
+        $this->inlineMarkerList .= $type;
     }
 
     /**
@@ -224,7 +217,7 @@ trait ParsedownGravTrait
                     $media = $this->page->media();
                 } else {
                     // see if this is an external page to this one
-                    $base_url = rtrim(Grav::instance()['base_url_relative'] . Grav::instance()['pages']->base(), '/');
+                    $base_url = rtrim(self::getGrav()['base_url_relative'] . self::getGrav()['pages']->base(), '/');
                     $page_route = '/' . ltrim(str_replace($base_url, '', $path_parts['dirname']), '/');
 
                     $ext_page = $this->pages->dispatch($page_route, true);
@@ -240,7 +233,6 @@ trait ParsedownGravTrait
 
                     // if there is a query, then parse it and build action calls
                     if (isset($url['query'])) {
-                        $url['query'] = htmlspecialchars_decode(urldecode($url['query']));
                         $actions = array_reduce(explode('&', $url['query']), function ($carry, $item) {
                             $parts = explode('=', $item, 2);
                             $value = isset($parts[1]) ? $parts[1] : null;

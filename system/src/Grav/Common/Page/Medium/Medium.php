@@ -2,7 +2,7 @@
 namespace Grav\Common\Page\Medium;
 
 use Grav\Common\File\CompiledYamlFile;
-use Grav\Common\Grav;
+use Grav\Common\GravTrait;
 use Grav\Common\Data\Data;
 use Grav\Common\Data\Blueprint;
 
@@ -15,6 +15,7 @@ use Grav\Common\Data\Blueprint;
  */
 class Medium extends Data implements RenderableInterface
 {
+    use GravTrait;
     use ParsedownHtmlTrait;
 
     /**
@@ -59,8 +60,8 @@ class Medium extends Data implements RenderableInterface
     {
         parent::__construct($items, $blueprint);
 
-        if (Grav::instance()['config']->get('system.media.enable_media_timestamp', true)) {
-            $this->querystring('&' . Grav::instance()['cache']->getKey());
+        if (self::getGrav()['config']->get('system.media.enable_media_timestamp', true)) {
+            $this->querystring('&' . self::getGrav()['cache']->getKey());
         }
 
         $this->def('mime', 'application/octet-stream');
@@ -142,7 +143,7 @@ class Medium extends Data implements RenderableInterface
             $this->reset();
         }
 
-        return Grav::instance()['base_url'] . $output . $this->querystring() . $this->urlHash();
+        return self::$grav['base_url'] . $output . $this->querystring() . $this->urlHash();
     }
 
     /**

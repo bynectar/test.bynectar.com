@@ -2,6 +2,7 @@
 namespace Grav\Console\Cli;
 
 use Grav\Console\ConsoleCommand;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
 /**

@@ -1,8 +1,6 @@
 <?php
 namespace Grav\Common\GPM\Local;
 
-use Grav\Common\Grav;
-
 /**
  * Class Plugins
  * @package Grav\Common\GPM\Local
@@ -19,6 +17,6 @@ class Plugins extends AbstractPackageCollection
      */
     public function __construct()
     {
-        parent::__construct(Grav::instance()['plugins']->all());
+        parent::__construct(self::getGrav()['plugins']->all());
     }
 }

@@ -28,7 +28,6 @@ class Uri
     protected $scheme;
     protected $port;
     protected $query;
-    protected $fragment;
     protected $root;
     protected $root_path;
     protected $uri;
@@ -159,12 +158,17 @@ class Uri
 
     private function buildEnvironment()
     {
+        // set hostname
+        $address = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '::1';
+
         // check for localhost variations
-        if ($this->name == '127.0.0.1' || $this->name== '::1') {
-            return 'localhost';
+        if ($this->name == 'localhost' || $address == '::1' || $address == '127.0.0.1') {
+            $env = 'localhost';
         } else {
-            return $this->name;
+            $env = $this->name;
         }
+
+        return $env;
     }
 
     /**
@@ -192,7 +196,6 @@ class Uri
         $this->host     = [];
         $this->root     = [];
         $this->url      = [];
-        $this->fragment = [];
 
         $grav = Grav::instance();
 
@@ -215,10 +218,6 @@ class Uri
         if (isset($uri_bits['query'])) {
             $this->uri .= '?' . $uri_bits['query'];
             parse_str($uri_bits['query'], $this->query);
-        }
-
-        if (isset($uri_bits['fragment'])) {
-            $this->fragment = $uri_bits['fragment'];
         }
 
         $this->base = $this->buildBaseUrl();
@@ -301,11 +300,6 @@ class Uri
             $uri = $bits['path'];
         }
 
-        //process fragment
-        if (isset($bits['fragment'])) {
-            $this->fragment = $bits['fragment'];
-        }
-
         // remove the extension if there is one set
         $parts = pathinfo($uri);
 
@@ -320,7 +314,7 @@ class Uri
         $valid_page_types = implode('|', $config->get('system.pages.types'));
 
         // Strip the file extension for valid page types
-        if (preg_match('/\.(' . $valid_page_types . ')$/', $parts['basename'])) {
+        if (preg_match("/\.(" . $valid_page_types . ")$/", $parts['basename'])) {
             $uri = rtrim(str_replace(DIRECTORY_SEPARATOR, DS, $parts['dirname']), DS) . '/' . $parts['filename'];
         }
 
@@ -471,21 +465,6 @@ class Uri
     }
 
     /**
-     * Gets the Fragment portion of a URI (eg #target)
-     *
-     * @param null $fragment
-     *
-     * @return null
-     */
-    public function fragment($fragment = null)
-    {
-        if ($fragment !== null) {
-            $this->fragment = $fragment;
-        }
-        return $this->fragment;
-    }
-
-    /**
      * Return URL.
      *
      * @param  bool $include_host Include hostname.
@@ -594,27 +573,6 @@ class Uri
     public function base()
     {
         return $this->base;
-    }
-
-    /**
-     * Return the base relative URL including the language prefix
-     * or the base relative url if multilanguage is not enabled
-     *
-     * @return String The base of the URI
-     */
-    public function baseIncludingLanguage()
-    {
-        $grav = Grav::instance();
-
-        // Link processing should prepend language
-        $language = $grav['language'];
-        $language_append = '';
-        if ($language->enabled()) {
-            $language_append = $language->getLanguageURLPrefix();
-        }
-
-        $base = $grav['base_url_relative'];
-        return rtrim($base . $grav['pages']->base(), '/') . $language_append;
     }
 
     /**
@@ -764,7 +722,7 @@ class Uri
      * @param Page   $page         the current page to use as reference
      * @param string $url the URL as it was written in the markdown
      * @param string $type         the type of URL, image | link
-     * @param bool   $absolute     if null, will use system default, if true will use absolute links internally
+     * @param null   $absolute     if null, will use system default, if true will use absolute links internally
      *
      * @return string the more friendly formatted url
      */
@@ -788,18 +746,18 @@ class Uri
             $url_path = $url;
         }
 
-        $external          = false;
-        $base              = $grav['base_url_relative'];
-        $base_url          = rtrim($base . $grav['pages']->base(), '/') . $language_append;
-        $pages_dir         = $grav['locator']->findResource('page://');
+        $external   = false;
+        $base       = $grav['base_url_relative'];
+        $base_url   = rtrim($base . $grav['pages']->base(), '/') . $language_append;
+        $pages_dir  = $grav['locator']->findResource('page://');
 
         // if absolute and starts with a base_url move on
         if (isset($url['scheme']) && Utils::startsWith($url['scheme'], 'http')) {
             $external = true;
-        } elseif ($url_path == '' && isset($url['fragment'])) {
-            $external = true;
-        } elseif (($base_url != '' && Utils::startsWith($url_path, $base_url)) || $url_path == '/') {
-            $url_path = $base_url . $url_path;
+        } elseif (($base_url != '' && Utils::startsWith($url_path, $base_url)) ||
+                   $url_path == '/' ||
+                   Utils::startsWith($url_path, '#')) {
+                       $url_path = $base_url . $url_path;
         } else {
 
             // see if page is relative to this or absolute
@@ -981,6 +939,7 @@ class Uri
         if ($type == 'link' && $language->enabled()) {
             $language_append = $language->getLanguageURLPrefix();
         }
+
         $pages_dir = $grav['locator']->findResource('page://');
         if (is_null($relative)) {
             $base = $grav['base_url'];

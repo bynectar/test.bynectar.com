@@ -79,23 +79,24 @@ class Themes extends Iterator
     public function all()
     {
         $list = [];
+        $locator = Grav::instance()['locator'];
 
-        /** @var UniformResourceLocator $locator */
-        $locator = $this->grav['locator'];
+        $themes = (array)$locator->findResources('themes://', false);
+        foreach ($themes as $path) {
+            $iterator = new \DirectoryIterator($path);
 
-        $iterator = $locator->getIterator('themes://');
+            /** @var \DirectoryIterator $directory */
+            foreach ($iterator as $directory) {
+                if (!$directory->isDir() || $directory->isDot()) {
+                    continue;
+                }
 
-        /** @var \DirectoryIterator $directory */
-        foreach ($iterator as $directory) {
-            if (!$directory->isDir() || $directory->isDot()) {
-                continue;
-            }
+                $theme = $directory->getBasename();
+                $result = self::get($theme);
 
-            $theme = $directory->getBasename();
-            $result = self::get($theme);
-
-            if ($result) {
-                $list[$theme] = $result;
+                if ($result) {
+                    $list[$theme] = $result;
+                }
             }
         }
         ksort($list);
@@ -119,6 +120,7 @@ class Themes extends Iterator
 
         $blueprints = new Blueprints('themes://');
         $blueprint = $blueprints->get("{$name}/blueprints");
+        $blueprint->name = $name;
 
         // Load default configuration.
         $file = CompiledYamlFile::instance("themes://{$name}/{$name}" . YAML_EXT);
@@ -139,7 +141,7 @@ class Themes extends Iterator
         $obj = new Data($file->content(), $blueprint);
 
         // Override with user configuration.
-        $obj->merge($this->config->get('themes.' . $name) ?: []);
+        $obj->merge($this->grav['config']->get('themes.' . $name) ?: []);
 
         // Save configuration always to user/config.
         $file = CompiledYamlFile::instance("config://themes/{$name}" . YAML_EXT);
@@ -278,23 +280,15 @@ class Themes extends Iterator
         $locator = $this->grav['locator'];
 
         if ($config->get('system.languages.translations', true)) {
-            $language_file = $locator->findResource("theme://languages" . YAML_EXT);
-            if ($language_file) {
-                $language = CompiledYamlFile::instance($language_file)->content();
-                $this->grav['languages']->mergeRecursive($language);
-            }
-            $languages_folder = $locator->findResource("theme://languages/");
-            if (file_exists($languages_folder)) {
-                $languages = [];
-                $iterator = new \DirectoryIterator($languages_folder);
+            $languageFiles = array_reverse($locator->findResources("theme://languages" . YAML_EXT));
 
-                /** @var \DirectoryIterator $directory */
-                foreach ($iterator as $file) {
-                    if ($file->getExtension() != 'yaml') {
-                        continue;
-                    }
-                    $languages[$file->getBasename('.yaml')] = CompiledYamlFile::instance($file->getPathname())->content();
-                }
+            $languages = [];
+            foreach ($languageFiles as $language) {
+                $languages[] = CompiledYamlFile::instance($language)->content();
+            }
+
+            if ($languages) {
+                $languages = call_user_func_array('array_replace_recursive', $languages);
                 $this->grav['languages']->mergeRecursive($languages);
             }
         }

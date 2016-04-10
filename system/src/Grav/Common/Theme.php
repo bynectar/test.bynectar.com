@@ -10,6 +10,8 @@ use RocketTheme\Toolbox\File\YamlFile;
  */
 class Theme extends Plugin
 {
+    public $name;
+
     /**
      * Constructor.
      *
@@ -19,17 +21,9 @@ class Theme extends Plugin
      */
     public function __construct(Grav $grav, Config $config, $name)
     {
-        parent::__construct($name, $grav, $config);
-    }
+        $this->name = $name;
 
-    /**
-     * Get configuration of the plugin.
-     *
-     * @return Config
-     */
-    public function config()
-    {
-        return $this->config["themes.{$this->name}"];
+        parent::__construct($name, $grav, $config);
     }
 
     /**
@@ -45,26 +39,13 @@ class Theme extends Plugin
             return false;
         }
 
-        $grav = Grav::instance();
-        $locator = $grav['locator'];
+        $locator = Grav::instance()['locator'];
         $filename = 'config://themes/' . $theme_name . '.yaml';
         $file = YamlFile::instance($locator->findResource($filename, true, true));
-        $content = $grav['config']->get('themes.' . $theme_name);
+        $content = Grav::instance()['config']->get('themes.' . $theme_name);
         $file->save($content);
         $file->free();
 
         return true;
-    }
-
-    /**
-     * Load blueprints.
-     */
-    protected function loadBlueprint()
-    {
-        if (!$this->blueprint) {
-            $grav = Grav::instance();
-            $themes = $grav['themes'];
-            $this->blueprint = $themes->get($this->name)->blueprints();
-        }
     }
 }

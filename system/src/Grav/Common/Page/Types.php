@@ -28,21 +28,13 @@ class Types implements \ArrayAccess, \Iterator, \Countable
         }
     }
 
-    public function scanBlueprints($uri)
+    public function scanBlueprints($paths)
     {
-        if (!is_string($uri)) {
-            throw new \InvalidArgumentException('First parameter must be URI');
-        }
-
-        $this->items = $this->findBlueprints($uri) + $this->items;
+        $this->items = $this->findBlueprints($paths) + $this->items;
     }
 
-    public function scanTemplates($uri)
+    public function scanTemplates($paths)
     {
-        if (!is_string($uri)) {
-            throw new \InvalidArgumentException('First parameter must be URI');
-        }
-
         $options = [
             'compare' => 'Filename',
             'pattern' => '|\.html\.twig$|',
@@ -60,13 +52,16 @@ class Types implements \ArrayAccess, \Iterator, \Countable
         // register default by default
         $this->register('default');
 
-        foreach (Folder::all($uri, $options) as $type) {
-            $this->register($type);
-        }
-
-        $modular_uri = rtrim($uri, '/') . '/modular';
-        foreach (Folder::all($modular_uri, $options) as $type) {
-            $this->register('modular/' . $type);
+        foreach ((array) $paths as $path) {
+            foreach (Folder::all($path, $options) as $type) {
+                $this->register($type);
+            }
+            $modular_path = rtrim($path, '/') . '/modular';
+            if (file_exists($modular_path)) {
+                foreach (Folder::all($modular_path, $options) as $type) {
+                    $this->register('modular/' . $type);
+                }
+            }
         }
     }
 
@@ -96,7 +91,7 @@ class Types implements \ArrayAccess, \Iterator, \Countable
         return $list;
     }
 
-    private function findBlueprints($uri)
+    private function findBlueprints($paths)
     {
         $options = [
             'compare' => 'Filename',
@@ -108,7 +103,10 @@ class Types implements \ArrayAccess, \Iterator, \Countable
             'value' => 'PathName',
         ];
 
-        $list = Folder::all($uri, $options);
+        $list = [];
+        foreach ((array) $paths as $path) {
+            $list += Folder::all($path, $options);
+        }
 
         return $list;
     }

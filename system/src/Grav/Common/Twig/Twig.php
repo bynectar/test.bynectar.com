@@ -54,8 +54,6 @@ class Twig
     protected $loaderArray;
 
 
-    protected $autoescape;
-
     /**
      * Constructor
      *
@@ -110,10 +108,6 @@ class Twig
                 $params['cache'] = $locator->findResource('cache://twig', true, true);
             }
 
-            if (!empty($this->autoescape)) {
-                $params['autoescape'] = $this->autoescape;
-            }
-
             $this->twig = new TwigEnvironment($loader_chain, $params);
 
             if ($config->get('system.twig.undefined_functions')) {
@@ -149,13 +143,6 @@ class Twig
                 $this->twig->addExtension(new \Twig_Extension_Debug());
             }
             $this->twig->addExtension(new TwigExtension());
-
-            // enable the Intl Twig extension if translations  are enabled
-            if (count($config->get('system.languages.supported', [])) > 0) {
-                if (class_exists('\Twig_Extensions_Extension_Intl')) {
-                    $this->twig->addExtension(new \Twig_Extensions_Extension_Intl());
-                }
-            }
 
             $this->grav->fireEvent('onTwigExtensions');
 
@@ -377,14 +364,5 @@ class Twig
         } else {
             return $template;
         }
-    }
-
-    /**
-     * Overrides the autoescape setting
-     *
-     * @param boolean $state
-     */
-    public function setAutoescape($state) {
-        $this->autoescape = (bool) $state;
     }
 }

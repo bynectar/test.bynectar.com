@@ -5,23 +5,16 @@ use Pimple\Container;
 use Pimple\ServiceProviderInterface;
 use \Monolog\Logger;
 use \Monolog\Handler\StreamHandler;
-use RocketTheme\Toolbox\ResourceLocator\UniformResourceLocator;
 
 class LoggerServiceProvider implements ServiceProviderInterface
 {
     public function register(Container $container)
     {
-        $container['log'] = function ($c) {
-            $log = new Logger('grav');
+        $log = new Logger('grav');
+        $log_file = LOG_DIR.'grav.log';
 
-            /** @var UniformResourceLocator $locator */
-            $locator = $c['locator'];
+        $log->pushHandler(new StreamHandler($log_file, Logger::DEBUG));
 
-            $log_file = $locator->findResource('log://grav.log', true, true);
-
-            $log->pushHandler(new StreamHandler($log_file, Logger::DEBUG));
-
-            return $log;
-        };
+        $container['log'] = $log;
     }
 }

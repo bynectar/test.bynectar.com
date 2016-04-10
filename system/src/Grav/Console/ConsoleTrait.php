@@ -1,9 +1,8 @@
 <?php
 namespace Grav\Console;
 
-use Grav\Common\Grav;
-use Grav\Common\Composer;
 use Grav\Common\GravTrait;
+use Grav\Common\Composer;
 use Grav\Console\Cli\ClearCacheCommand;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -37,8 +36,8 @@ trait ConsoleTrait
      */
     public function setupConsole(InputInterface $input, OutputInterface $output)
     {
-        if (Grav::instance()) {
-            Grav::instance()['config']->set('system.cache.driver', 'default');
+        if (self::getGrav()) {
+            self::getGrav()['config']->set('system.cache.driver', 'default');
         }
 
         $this->argv = $_SERVER['argv'][0];
@@ -108,10 +107,10 @@ trait ConsoleTrait
         $input = new ArrayInput($all);
         return $command->run($input, $this->output);
     }
-
+    
     /**
      * Validate if the system is based on windows or not.
-     *
+     * 
      * @return bool
      */
     public function isWindows()

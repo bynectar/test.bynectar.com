@@ -5,6 +5,7 @@ use RocketTheme\Toolbox\ArrayTraits\Countable;
 use RocketTheme\Toolbox\ArrayTraits\Export;
 use RocketTheme\Toolbox\ArrayTraits\ExportInterface;
 use RocketTheme\Toolbox\ArrayTraits\NestedArrayAccessWithGetters;
+use RocketTheme\Toolbox\Blueprints\Blueprints;
 use RocketTheme\Toolbox\File\File;
 use RocketTheme\Toolbox\File\FileInterface;
 
@@ -210,18 +211,18 @@ class Data implements DataInterface, \ArrayAccess, \Countable, ExportInterface
      */
     public function extra()
     {
-        return $this->blueprints()->extra($this->items);
+        return $this->blueprints ? $this->blueprints->extra($this->items) : array();
     }
 
     /**
      * Return blueprints.
      *
-     * @return Blueprint
+     * @return Blueprints
      */
     public function blueprints()
     {
         if (!$this->blueprints){
-            $this->blueprints = new Blueprint;
+            $this->blueprints = new Blueprints;
         } elseif (is_callable($this->blueprints)) {
             // Lazy load blueprints.
             $blueprints = $this->blueprints;

@@ -1,10 +1,11 @@
 <?php
 namespace Grav;
 
+
 // Ensure vendor libraries exist
 $autoload = __DIR__ . '/vendor/autoload.php';
 if (!is_file($autoload)) {
-    die("Please run: <i>bin/grav install</i>");
+    throw new \RuntimeException("Please run: <i>bin/grav install</i>");
 }
 
 use Grav\Common\Grav;
@@ -13,7 +14,7 @@ use Grav\Common\Grav;
 $loader = require_once $autoload;
 
 if (version_compare($ver = PHP_VERSION, $req = GRAV_PHP_MIN, '<')) {
-    die(sprintf('You are running PHP %s, but Grav needs at least <strong>PHP %s</strong> to run.', $ver, $req));
+    throw new \RuntimeException(sprintf('You are running PHP %s, but Grav needs at least <strong>PHP %s</strong> to run.', $ver, $req));
 }
 
 // Set timezone to default, falls back to system if php.ini not set
@@ -21,7 +22,7 @@ date_default_timezone_set(@date_default_timezone_get());
 
 // Set internal encoding if mbstring loaded
 if (!extension_loaded('mbstring')) {
-    die("'mbstring' extension is not loaded.  This is required for Grav to run correctly");
+    throw new \RuntimeException("'mbstring' extension is not loaded.  This is required for Grav to run correctly");
 }
 mb_internal_encoding('UTF-8');
 
@@ -39,3 +40,4 @@ try {
     $grav->fireEvent('onFatalException');
     throw $e;
 }
+

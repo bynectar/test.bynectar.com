@@ -19,22 +19,13 @@ form:
 
           fields:
             frontmatter:
-              classes: frontmatter
-              type: editor
+              type: frontmatter
               label: PLUGIN_ADMIN.FRONTMATTER
-              autofocus: true
-              codemirror:
-                mode: 'yaml'
-                indentUnit: 4
-                autofocus: true
-                indentWithTabs: false
-                lineNumbers: true
-                styleActiveLine: true
-                gutters: ['CodeMirror-lint-markers']
-                lint: true
+
 
             content:
               type: markdown
+              showPreview: true
 
             uploads:
               type: pagemedia
