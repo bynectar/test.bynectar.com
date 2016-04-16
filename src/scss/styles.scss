@@ -1,0 +1,75 @@
+@import 'variables';
+@import 'mixins';
+@import 'foundation';
+
+// Page
+html, body{
+  width: 100%;
+  height: 100%;
+  @include font-cabin;
+  color: $dk-gray;
+}
+body{
+  border-color: $dk-gray;
+  border-style: solid;
+  border-width: 0 5px;
+}
+
+// Nav
+#header{
+  font-size: 1.5rem;
+  position: fixed;
+  top: 0;
+  left: 5px;
+  right: 5px;
+  height: 6rem;
+  background: $header-bg;
+  z-index: $header-z;
+
+  #header-sitelogo-img{
+    position: absolute;
+    top: 1.5rem;
+    left: 2rem;
+    width: 45px;
+    height: 40px;
+  }
+  #header-nav{
+    font-size: 1rem;
+    text-align: center;
+    color: #222;
+    padding-top: 2rem;
+    top: 0;
+    left: 0;
+    right: 0;
+  
+    ul{
+      list-style: none;
+      margin: 0;
+      padding: 0;
+            
+      h1,li{
+        display: inline;
+        font-family: $font-cabin;
+        font-size: 1rem;
+        
+        a{
+          margin: 0 .5rem;
+          color: $dk-gray;
+        }
+      }
+      #header-nav-brand{
+        letter-spacing: 2px;
+        color: $amber;
+      }
+      #header-nav-pipe{
+        margin: 0 1rem;
+        color: $mid-gray;
+      }
+    }
+  }
+}
+
+// TEMP STYLES
+#page{
+  padding-top: 6rem;
+}

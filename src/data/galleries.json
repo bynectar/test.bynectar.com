@@ -1,0 +1,165 @@
+{
+  "sys": {
+    "type": "Array"
+  },
+  "total": 1,
+  "skip": 0,
+  "limit": 100,
+  "items": [
+    {
+      "sys": {
+        "space": {
+          "sys": {
+            "type": "Link",
+            "linkType": "Space",
+            "id": "9ew8teutdtu7"
+          }
+        },
+        "id": "5aoQj99raoIkuUs2Uqq6c",
+        "type": "Entry",
+        "createdAt": "2016-04-16T14:45:21.829Z",
+        "updatedAt": "2016-04-16T14:45:21.829Z",
+        "revision": 1,
+        "contentType": {
+          "sys": {
+            "type": "Link",
+            "linkType": "ContentType",
+            "id": "galleries"
+          }
+        },
+        "locale": "en-US"
+      },
+      "fields": {
+        "title": "Amanda & Jim at the Wyman Estate",
+        "photos": [
+          {
+            "sys": {
+              "type": "Link",
+              "linkType": "Asset",
+              "id": "XklOM2SlEcSGywG6m2mOk"
+            }
+          },
+          {
+            "sys": {
+              "type": "Link",
+              "linkType": "Asset",
+              "id": "74wMPaVXqMYuOM4m6m8kkg"
+            }
+          },
+          {
+            "sys": {
+              "type": "Link",
+              "linkType": "Asset",
+              "id": "3IVhlklD20swOU0Ec8I6iK"
+            }
+          }
+        ],
+        "primaryText": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur elementum dignissim tortor, a ultrices felis eleifend in. Sed rutrum sem non varius faucibus. Aenean lectus odio, semper eu ultricies at, vulputate nec sem. Donec fringilla, felis luctus faucibus luctus, justo ipsum consequat augue, a gravida elit lacus consequat sem. Morbi ut finibus eros. Duis rutrum arcu condimentum tellus sodales, in efficitur neque finibus.",
+        "secondaryText": "Curabitur fringilla sapien vitae leo tincidunt, vel efficitur dui dictum. Duis a dolor pharetra lorem luctus placerat. Donec nec faucibus neque. Proin vestibulum augue eget libero aliquet, non convallis urna interdum. Vivamus bibendum euismod erat nec posuere. Nulla non mi velit. Duis nec ligula tellus."
+      }
+    }
+  ],
+  "includes": {
+    "Asset": [
+      {
+        "sys": {
+          "space": {
+            "sys": {
+              "type": "Link",
+              "linkType": "Space",
+              "id": "9ew8teutdtu7"
+            }
+          },
+          "id": "3IVhlklD20swOU0Ec8I6iK",
+          "type": "Asset",
+          "createdAt": "2016-04-16T14:44:23.828Z",
+          "updatedAt": "2016-04-16T14:44:23.828Z",
+          "revision": 1,
+          "locale": "en-US"
+        },
+        "fields": {
+          "title": "Third test image",
+          "description": "A description of this test image",
+          "file": {
+            "url": "//images.contentful.com/9ew8teutdtu7/3IVhlklD20swOU0Ec8I6iK/3a073ef17fbf031b9192dfb9e0ae439d/IMG_4345.JPG",
+            "details": {
+              "size": 1385214,
+              "image": {
+                "width": 3264,
+                "height": 2448
+              }
+            },
+            "fileName": "IMG_4345.JPG",
+            "contentType": "image/jpeg"
+          }
+        }
+      },
+      {
+        "sys": {
+          "space": {
+            "sys": {
+              "type": "Link",
+              "linkType": "Space",
+              "id": "9ew8teutdtu7"
+            }
+          },
+          "id": "74wMPaVXqMYuOM4m6m8kkg",
+          "type": "Asset",
+          "createdAt": "2016-04-16T14:41:31.488Z",
+          "updatedAt": "2016-04-16T14:41:31.488Z",
+          "revision": 1,
+          "locale": "en-US"
+        },
+        "fields": {
+          "title": "Test Image",
+          "description": "A description of this test image",
+          "file": {
+            "url": "//images.contentful.com/9ew8teutdtu7/74wMPaVXqMYuOM4m6m8kkg/ffb56df1ef509463453b735ef307efc3/flower_exchange_1971.jpg",
+            "details": {
+              "size": 353946,
+              "image": {
+                "width": 1920,
+                "height": 1242
+              }
+            },
+            "fileName": "flower_exchange_1971.jpg",
+            "contentType": "image/jpeg"
+          }
+        }
+      },
+      {
+        "sys": {
+          "space": {
+            "sys": {
+              "type": "Link",
+              "linkType": "Space",
+              "id": "9ew8teutdtu7"
+            }
+          },
+          "id": "XklOM2SlEcSGywG6m2mOk",
+          "type": "Asset",
+          "createdAt": "2016-04-16T14:42:44.555Z",
+          "updatedAt": "2016-04-16T14:42:44.555Z",
+          "revision": 1,
+          "locale": "en-US"
+        },
+        "fields": {
+          "title": "Second test image",
+          "description": "A description of this test image",
+          "file": {
+            "url": "//images.contentful.com/9ew8teutdtu7/XklOM2SlEcSGywG6m2mOk/4b00fa73c0132eda060d30190e573459/Original_Photo.jpg",
+            "details": {
+              "size": 452609,
+              "image": {
+                "width": 1558,
+                "height": 1037
+              }
+            },
+            "fileName": "Original_Photo.jpg",
+            "contentType": "image/jpeg"
+          }
+        }
+      }
+    ]
+  }
+}
