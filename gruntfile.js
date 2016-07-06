@@ -6,13 +6,13 @@ module.exports = function(grunt) {
 
   // load the blog template from the desired path
   var postTemplate = grunt.file.read('./src/posts/post.hbs');
-  
+
   // expand the data files and loop over each filepath
   var posts = _.flatten(_.map(grunt.file.expand('./src/data/post*.json'), function(filepath) {
-    
+
     // read in the data file
     var data = grunt.file.readJSON(filepath);
-    
+
     // create a 'page' object to add to the 'pages' collection
     return {
       // the filename will determine how the page is named later
@@ -23,20 +23,26 @@ module.exports = function(grunt) {
       content: postTemplate
     };
   }));
-  
+
+  // Get Contentful Token
+  var contentfulToken = grunt.file.read('./contentful.txt');
+  // Build API Endpoints
+  var flowers101Url = 'https://cdn.contentful.com/spaces/v6p6js5cdr2w/entries?content_type=flowers101&access_token=' + contentfulToken;
+  var galleriesUrl = 'https://cdn.contentful.com/spaces/v6p6js5cdr2w/entries?content_type=gallery&access_token=' + contentfulToken;
+
   // Project configuration.
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     http: {
       flowers101: {
         options: {
-          url: 'https://cdn.contentful.com/spaces/9ew8teutdtu7/entries?access_token=ba38d30d31bcf3a2e067c705e8acf4a3ba64374d000d737e5decd56dade119ec&content_type=flowers',
+          url: flowers101Url,
         },
         dest: './src/data/flowers101.json'
       },
       galleries: {
         options: {
-          url: 'https://cdn.contentful.com/spaces/9ew8teutdtu7/entries?access_token=ba38d30d31bcf3a2e067c705e8acf4a3ba64374d000d737e5decd56dade119ec&content_type=galleries',
+          url: galleriesUrl,
         },
         dest: './src/data/galleries.json'
       }
@@ -47,7 +53,10 @@ module.exports = function(grunt) {
         layoutdir: './src/templates/layouts',
         partials: './src/templates/partials/**/*.hbs',
         plugins: ['permalinks'],
-        data: ['./src/data/flowers101.json','./src/data/galleries.json'],
+        data: [
+          './src/data/flowers101.json',
+          './src/data/galleries.json'
+        ],
         expand: true,
         assets: 'dist',
       },
@@ -78,13 +87,10 @@ module.exports = function(grunt) {
         }]
       }
     },
-    sass: {
-      dist: {
-        options: {
-          style: 'expanded'
-        },
+    stylus: {
+      compile: {
         files: {
-          './dist/css/styles.css': './src/scss/styles.scss'
+          './dist/css/styles.css': './src/styl/styles.styl',
         }
       }
     },
@@ -102,12 +108,12 @@ module.exports = function(grunt) {
       scripts: {
         files: [
         	'**/*.hbs',
-        	'./src/{,*/}*.scss',
+        	'./src/{,*/}*.styl',
         	'./src/{,*/}*.css',
         	'./src/{,*/}*.js',
         	'./src/{,*/}*.json'
       	],
-        tasks: ['http','assemble','sass','concat','jshint','copy'],
+        tasks: ['http','assemble','stylus','concat','jshint','copy'],
         options: {
           spawn: false,
           livereload: true
@@ -137,7 +143,7 @@ module.exports = function(grunt) {
   // Load handlebars template compiler
   grunt.loadNpmTasks('assemble');
   grunt.loadNpmTasks('grunt-contrib-watch');
-  grunt.loadNpmTasks('grunt-contrib-sass');
+  grunt.loadNpmTasks('grunt-contrib-stylus');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-connect');
@@ -145,7 +151,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-http');
 
   // Default task(s).
-  grunt.registerTask('default', ['http','assemble','sass','concat','jshint','copy']);
-  grunt.registerTask('serve', ['http','assemble','sass','concat','jshint','copy','connect','watch']);
+  grunt.registerTask('default', ['http','assemble','stylus','concat','jshint','copy']);
+  grunt.registerTask('serve', ['http','assemble','stylus','concat','jshint','copy','connect','watch']);
 
 };
