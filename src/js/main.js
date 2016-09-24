@@ -1,24 +1,6 @@
 // Main Javascript File
-
-// Vertical Centering
-function verticalCenter(){
-	$('.vertical-center-wrap').each(function(){
-		// Get wrapper height and element height and calculate offset for centering
-		var wrapHeight = $(this).height();
-		var itemHeight = $('.vertical-center',this).height();
-		var offset = ( ( wrapHeight - itemHeight ) / 2 ) + 'px';
-		$('.vertical-center',this).css('margin-top',offset);
-	});
-}
-
-// Before .ready()
-verticalCenter();
-
 $(document).ready(function(){
-	
-	// Init Functions
-	verticalCenter(); // Vertical Centering
-	
+
 	$(window).scroll(function(){
 		var scroll = $(window).scrollTop();
 		if ( scroll > 0 ){
@@ -27,9 +9,18 @@ $(document).ready(function(){
 			$('html').removeClass('scroll');
 		}
 	});
-	
-	$(window).resize(function(){
-		verticalCenter();
+
+	// Init Masonry
+	Macy.init({
+		container: '.grid',
+		trueOrder: false,
+		waitForImages: false,
+		margin: 0,
+		columns: 3,
+		breakAt: {
+	//		940: 3,
+			520: 2,
+			400: 1
+		}
 	});
-	
 });

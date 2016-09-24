@@ -1,30 +1,15 @@
 // The Building Blocks
 @import "variables"
-@import "normalize.css"
 @import "mixins"
-//@import "normalize"
+//@import "normalize.css"
 @import "layout"
-//@import "typography"
+@import "typography"
 
 // Global Page Styles
 @import "page"
 @import "nav"
 
 // Individual Page Styles
+@import "pages/home"
 @import "pages/process"
-
-// TEMP
-.testcolumn
-  columns(small,10)
-  columns(medium,6)
-  columns(large,4)
-  push(small,1)
-  push(medium,3)
-  push(large,4)
-  height 200px
-
-.testblock-1
-  background #f00
-
-.testblock-2
-  background #00f
+@import "pages/galleries"

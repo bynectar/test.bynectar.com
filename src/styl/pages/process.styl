@@ -1,0 +1,20 @@
+splitBlock()
+  display block
+  padding 3em 0
+
+splitBlock__text()
+  column(small,10)
+  column(medium,4)
+  push(small,1)
+
+splitBlock__image()
+  column(small,10)
+  column(medium,4)
+  push(small,1)
+
+#block1
+  splitBlock()
+  #block1__text
+    splitBlock__text()
+  #splitBlock__image
+    splitBlock__image()

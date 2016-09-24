@@ -1,0 +1,88 @@
+// Gallery Listing View Styles
+#galleriesHero
+	background-size cover
+	margin-bottom 1rem
+	aspect(small,4,1)
+	#galleriesHero__text
+		text-align center
+		color white
+		h1
+			surTitle()
+			color white
+		h2
+			pageTitle()
+
+.galleryThumbnail
+	flexContainer()
+	box-sizing border-box
+	.galleryThumbnail__text
+		flex 1
+		padding .25rem
+		box-sizing border-box
+		text-align center
+		.galleryThumbnail__location
+			surTitle()
+		& > *
+			padWidth(small,20%,20%)
+	.galleryThumbnail__photo
+		flex 1
+		padding .25rem
+		box-sizing border-box
+		.galleryThumbnail__image
+			thumbnailImage()
+			aspect(small,1,1)
+
+// Gallery View Styles
+#galleryHero
+	textHero()
+	aspect(small,3,1)
+#galleryGrid
+	.galleryGrid__item
+		padding .25rem
+		box-sizing border-box
+		.galleryGrid__thumbnail
+			thumbnailImage()
+			aspect(small,1,1)
+
+#galleryQuote
+	padding .25rem
+	position relative
+	#galleryQuote__photo
+		thumbnailImage()
+		aspect(small,2,1)
+	#galleryQuote__overlay
+		positionAll(.25rem)
+		display flex
+		flex-direction row-reverse
+		align-items center
+		color white
+		box-sizing border-box
+		background linear-gradient(90deg,rgba(0,0,0,0),rgba(0,0,0,0.6))
+		#galleryQuote__text
+			flex-basis 50%
+			padding 2rem
+			text-align center
+			box-sizing border-box
+			blockquote
+				heading()
+				font-family font-playfair
+				font-style italic
+				font-size 2.5em
+			#galleryQuote__byline
+				surTitle()
+				color white
+
+#galleryInfo
+	display flex
+	text-align center
+	#galleryInfo__vendors
+		flex 1
+		padding 6rem 0
+		ul
+			text-transform uppercase
+			margin 0
+			padding 0
+			list-style none
+	#galleryInfo__cta
+		flex 1
+		padding 6rem 0

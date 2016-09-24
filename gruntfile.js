@@ -108,10 +108,11 @@ module.exports = function(grunt) {
       scripts: {
         files: [
         	'**/*.hbs',
-        	'./src/{,*/}*.styl',
-        	'./src/{,*/}*.css',
-        	'./src/{,*/}*.js',
-        	'./src/{,*/}*.json'
+        	'./src/**/*.styl',
+        	'./src/**/*.css',
+        	'./src/**/*.js',
+        	'./src/**/*.json',
+          './src/**/*.hbs'
       	],
         tasks: ['http','assemble','stylus','concat','jshint','copy'],
         options: {
