@@ -82,22 +82,7 @@ thumbnailImage()
 	background-position center center
 	position relative
 	box-sizing border-box
-	.imageCaption
-		position absolute
-		bottom .5rem
-		right .5rem
-		margin-left .5rem
-		padding .5rem 1rem
-		background rgba(0,0,0,0.75)
-		border-radius .25rem
-		font-size .75rem
-		color white
-		opacity 0
-		transition opacity linear .2s
-		a
-			color white
-	&:hover .imageCaption
-		opacity 1
+	cursor pointer
 
 // Feature Blocks
 feature()
@@ -154,9 +139,9 @@ textHero()
 		align-items center
 		.heroText
 			flex 1
-			h1
+			.galleryHero__title
 				pageTitle()
-			h2
+			.galleryHero__surTitle
 				surTitle()
 
 imageHero()

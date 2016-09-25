@@ -1,6 +1,42 @@
 // Main Javascript File
 $(document).ready(function(){
 
+	// Modal
+	function modalOpen() {
+		$('#galleryModal').addClass('visible').fadeIn(200);
+		console.log('modal in');
+	}
+	function modalClose() {
+		$('#galleryModal').removeClass('visible').fadeOut(200);
+		console.log('modal out');
+	}
+
+	// Gallery Slideshow
+	var sliderImages = [];
+	$('[data-slide]').each(function(){
+		var div = document.createElement('DIV');
+		var bg = $(this).attr('data-slide');
+		var css = 'url(' + bg + ')';
+		$(div).css('backgroundImage',css);
+		$('#galleryModal__slideContainer').append(div);
+		$(this).click(function(){
+			modalOpen();
+		});
+	});
+	$('#galleryModal__close').click(function(){
+		modalClose();
+	});
+	$('#galleryModal__slider').flexslider({
+		selector: '#galleryModal__slideContainer > div',
+		directionNav: false,
+		slideshow: false,
+		manualControls: '[data-slide]',
+		before: function(){
+			console.log('transition');
+		}
+	});
+
+	// Scroll Nav Class
 	$(window).scroll(function(){
 		var scroll = $(window).scrollTop();
 		if ( scroll > 0 ){
@@ -18,7 +54,6 @@ $(document).ready(function(){
 		margin: 0,
 		columns: 3,
 		breakAt: {
-	//		940: 3,
 			520: 2,
 			400: 1
 		}
