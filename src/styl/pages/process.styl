@@ -1,20 +1,26 @@
-splitBlock()
-  display block
-  padding 3em 0
+#processHero,#processHero
+	textHero()
+	aspect(small,3,1)
 
-splitBlock__text()
-  column(small,10)
-  column(medium,4)
-  push(small,1)
-
-splitBlock__image()
-  column(small,10)
-  column(medium,4)
-  push(small,1)
-
-#block1
-  splitBlock()
-  #block1__text
-    splitBlock__text()
-  #splitBlock__image
-    splitBlock__image()
+.processStep
+	flexContainer()
+	box-sizing border-box
+	&:nth-child(2n+2)
+		flex-direction row-reverse
+	.processStep__text
+		flex 1
+		padding .25rem
+		box-sizing border-box
+		text-align center
+		h4
+			surTitle()
+		& > *
+			padWidth(small,20%,20%)
+	.processStep__photo
+		flex 1
+		padding .25rem
+		box-sizing border-box
+		position relative
+		.processStep__image
+			thumbnailImage()
+			aspect(small,6,5)

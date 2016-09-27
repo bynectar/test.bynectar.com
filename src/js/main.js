@@ -28,7 +28,9 @@ $(document).ready(function(){
 	});
 	$('#galleryModal__slider').flexslider({
 		selector: '#galleryModal__slideContainer > div',
-		directionNav: false,
+		directionNav: true,
+		nextText: "arrow_forward",
+		prevText: "arrow_back",
 		slideshow: false,
 		manualControls: '[data-slide]',
 		before: function(){

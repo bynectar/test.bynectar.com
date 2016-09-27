@@ -1,7 +1,71 @@
+// Gallery Image Styles
+.thumbnailWrapper
+	border .25rem solid white
+	background-color mid-gray
+	box-sizing border-box
+	position relative
+	overflow hidden
+	.thumbnailImage
+		thumbnailImage()
+		aspect(small,6,5)
+		transition all linear .2s
+	.thumbnailPhotoCredit
+		position absolute
+		bottom 1rem
+		right 1.5rem
+		z-index 10
+		color white
+	.thumbnailOverlay
+		positionAll(0)
+		background rgba(0,0,0,0.3)
+		display flex
+		align-items center
+		display flex
+		flex-direction row
+		align-items center
+		opacity 0
+		transition all linear .2s
+		cursor pointer
+		.thumbnailText
+			flex 1
+			padding 15% 10% 10%
+			text-align center
+			color white
+			transition all ease-out .3s
+			p
+				heading()
+				font-family font-playfair
+				font-size 1.5rem
+				margin-bottom 1.5rem
+			a
+				color white
+				transition all linear .1s
+				&:hover
+					color amber
+					.fa-pinterest
+						color amber
+			.thumbnailByline
+				margin-bottom 1.5rem
+			.fa-pinterest
+				font-size 1.5rem
+				color white
+				margin-bottom 1.5rem
+				transition all linear .1s
+	&.thumbnailHover:hover
+		.thumbnailImage
+			filter blur(5px)
+		.thumbnailOverlay
+			opacity 1
+			.thumbnailText
+				padding-top 10%
+
 // Gallery Listing View Styles
-#galleriesHero
+#galleriesHero,#galleryHero
 	textHero()
 	aspect(small,3,1)
+
+#galleryBody
+	margin .25rem
 
 .galleryThumbnail
 	flexContainer()
@@ -17,45 +81,12 @@
 			padWidth(small,20%,20%)
 	.galleryThumbnail__photo
 		flex 1
-		padding .25rem
-		box-sizing border-box
-		.galleryThumbnail__image
-			thumbnailImage()
-			aspect(small,1,1)
-
-.imageCaption
-	position absolute
-	bottom .5rem
-	right .5rem
-	margin-left .5rem
-	padding .5rem 1rem
-	background rgba(0,0,0,0.75)
-	border-radius .25rem
-	font-size .75rem
-	color white
-	opacity 0
-	transition opacity linear .2s
-	z-index 9
-	a
-		color white
-*:hover > .imageCaption
-	opacity 1
 
 // Gallery View Styles
-#galleryHero
-	textHero()
-	aspect(small,3,1)
-
-#galleryBody
-	margin .25rem
-
 #galleryGrid
 	.galleryGrid__item
-		padding .25rem
+		border .25rem solid white
 		box-sizing border-box
-		.galleryGrid__thumbnail
-			thumbnailImage()
-			aspect(small,1,1)
 
 #galleryQuote
 	padding .25rem
@@ -112,18 +143,17 @@
 	left 0
 	z-index 100
 	overflow hidden
-	background rgba(0,0,0,0.05)
+	background rgba(255,255,255,0.9)
 	#galleryModal__slider
-		positionAll(1rem)
-		background white
-		box-shadow 0 10px 30px rgba(0,0,0,.4)
+		positionAll(2rem)
 		transition all ease-out .2s
 		#galleryModal__close
 			position absolute
-			top 1rem
-			right 1rem
+			top 0
+			right 0
 			z-index 10
 			cursor pointer
+			font-size 1.5rem
 			&:hover
 				color amber
 		#galleryModal__slideContainer
@@ -133,3 +163,28 @@
 				background-position center center
 				background-size contain
 				background-repeat no-repeat
+		ul.flex-direction-nav
+			list-style none
+			padding 0
+			positionAll(0)
+			z-index 9
+			li
+				position absolute
+				top 0
+				bottom 0
+				display flex
+				align-items center
+				padding 0
+				a
+					font-family "Material Icons"
+					font-size 2rem
+					text-decoration none
+					color dk-gray
+					&:hover
+						color amber
+				&.flex-nav-prev
+					left 0
+				&.flex-nav-next
+					right 0
+				&:hover
+					color amber

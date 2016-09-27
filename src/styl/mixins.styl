@@ -83,6 +83,7 @@ thumbnailImage()
 	position relative
 	box-sizing border-box
 	cursor pointer
+	transition opacity linear .2s
 
 // Feature Blocks
 feature()
@@ -154,7 +155,7 @@ imageHero()
 		align-items center
 		.heroText
 			flex 1
-			h1
-				surTitle()
-			h2
+			.galleryHero__title
 				pageTitle()
+			.galleryHero__surTitle
+				surTitle()
