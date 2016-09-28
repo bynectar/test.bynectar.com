@@ -1,6 +1,0 @@
-<?php namespace Contracts\Repositories;
-
-interface {{Entity}}RepositoryInterface extends RepositoryInterface
-{
-    
-}
